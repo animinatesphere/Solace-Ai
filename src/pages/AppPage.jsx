@@ -9,7 +9,7 @@ const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwcmJzb29uYnlrc2JuYXVzZGltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5NzI2NjIsImV4cCI6MjA4ODU0ODY2Mn0.Pngkadr02RFOZboaW3DSKRj7VxoiE4C36Ey4EDGfjl0";
 const LEMONSQUEEZY_URL =
   "https://solaceapp.lemonsqueezy.com/checkout/buy/e56a3b6e-b4e3-404b-bd53-ffdc795127db?desc=0";
-const HF_KEY = "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";
+const HF_KEY = import.meta.env.VITE_HF_KEY || "";
 
 // SQL for Supabase:
 // CREATE TABLE conversations (id uuid DEFAULT gen_random_uuid() PRIMARY KEY, user_id text, role text, content text, persona text, created_at timestamptz DEFAULT now());
