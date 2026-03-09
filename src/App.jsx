@@ -5,6 +5,7 @@ import { Navbar } from "./components/Shared";
 import LandingPage from "./pages/LandingPage";
 import AboutPage from "./pages/AboutPage";
 import AppPage from "./pages/AppPage";
+import AdminPage from "./pages/AdminPage";
 import "./styles/global.css";
 
 function ScrollToTop() {
@@ -31,6 +32,7 @@ export default function App() {
           <Route path="/" element={<Layout><LandingPage /></Layout>} />
           <Route path="/about" element={<Layout><AboutPage /></Layout>} />
           <Route path="/app" element={<Layout showNav={false}><AppPage /></Layout>} />
+          <Route path="/admin" element={<Layout showNav={false}><AdminPage /></Layout>} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

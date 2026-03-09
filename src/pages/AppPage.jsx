@@ -457,16 +457,16 @@ export default function AppPage() {
     async (text) => {
       const content = (text || input).trim();
       if (!content || loading) return;
-      // Check free message limit
-      const msgCount = parseInt(
-        localStorage.getItem("solace_msg_count") || "0",
-        10,
-      );
-      if (msgCount >= FREE_MSG_LIMIT) {
-        setShowPaywall(true);
-        return;
+      // Admin bypasses message limit
+      const isAdmin = localStorage.getItem("solace_admin") === "true";
+      if (!isAdmin) {
+        const msgCount = parseInt(localStorage.getItem("solace_msg_count") || "0", 10);
+        if (msgCount >= FREE_MSG_LIMIT) {
+          setShowPaywall(true);
+          return;
+        }
+        localStorage.setItem("solace_msg_count", String(msgCount + 1));
       }
-      localStorage.setItem("solace_msg_count", String(msgCount + 1));
       setInput("");
       if (taRef.current) {
         taRef.current.style.height = "auto";
