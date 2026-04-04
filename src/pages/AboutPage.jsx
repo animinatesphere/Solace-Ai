@@ -131,10 +131,10 @@ const TEAM = [
 ];
 
 const TIMELINE = [
-  { year: "2023", title: "The problem becomes personal", desc: "Our founder hits a mental health wall and can't find affordable, available support. Solace is born from that experience." },
-  { year: "2024", title: "First version launched", desc: "We release a simple chatbot. 500 people sign up in the first week. The feedback is overwhelming — 'I finally feel heard.'" },
-  { year: "2024", title: "10,000 users in 6 months", desc: "Word of mouth alone drives massive growth. We raise a small seed round to improve the AI and expand the team." },
-  { year: "2025", title: "Global expansion", desc: "Solace launches in 40+ countries with multi-language support, Lemon Squeezy payment integration, and a mobile app." },
+  { year: "2024", title: "The problem becomes personal", desc: "Our founder hits a mental health wall and can't find affordable, available support. Solace is born from that experience." },
+  { year: "2025", title: "First version launched", desc: "We release a simple chatbot. 500 people sign up in the first week. The feedback is overwhelming — 'I finally feel heard.'" },
+  { year: "2025", title: "10,000 users in 6 months", desc: "Word of mouth alone drives massive growth. We raise a small seed round to improve the AI and expand the team." },
+  { year: "2026", title: "Global expansion", desc: "Solace launches in 40+ countries with multi-language support, Lemon Squeezy payment integration, and a mobile app." },
 ];
 
 export default function AboutPage() {
@@ -236,17 +236,17 @@ export default function AboutPage() {
         {/* TEAM */}
         <section className="team-section">
           <Reveal>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "var(--glow)", border: "1px solid rgba(201,169,110,0.2)", borderRadius: 100, padding: "6px 14px", fontSize: 11, fontWeight: 700, color: "var(--gold)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 18 }}>
-              <Icons.sparkle style={{ width: 12, height: 12 }} /> The team
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "var(--glow)", border: "1px solid var(--border)", borderRadius: 100, padding: "6px 14px", fontSize: 11, fontWeight: 700, color: "var(--gold)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 18 }}>
+              <Icons.heart style={{ width: 12, height: 12 }} /> The Builders
             </div>
-            <h2>Built with <em>care.</em></h2>
-            <p>We're a small team with a big mission — combining AI expertise, clinical psychology, and product design.</p>
+            <h2 className="section-title">Rooted in <em>empathy.</em></h2>
+            <p className="ab-sub">We are a collective of clinicians, engineers, and designers dedicated to making mental health support accessible to all.</p>
           </Reveal>
           <div className="team-grid">
             {TEAM.map((t, i) => (
               <Reveal key={i} delay={i * 100}>
                 <div className="team-card">
-                  <div className="team-avatar">{t.init}</div>
+                  <div className="team-avatar" style={{ background: "linear-gradient(135deg, var(--gold), var(--gold2))", color: "#fff" }}>{t.init}</div>
                   <div className="team-name">{t.name}</div>
                   <div className="team-role">{t.role}</div>
                   <p className="team-bio">{t.bio}</p>

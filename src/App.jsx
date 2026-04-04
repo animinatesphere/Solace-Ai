@@ -4,6 +4,8 @@ import { ThemeProvider } from "./components/Shared";
 import { Navbar } from "./components/Shared";
 import LandingPage from "./pages/LandingPage";
 import AboutPage from "./pages/AboutPage";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import ContactPage from "./pages/ContactPage";
 import AppPage from "./pages/AppPage";
 import AdminPage from "./pages/AdminPage";
 import "./styles/global.css";
@@ -31,6 +33,8 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Layout><LandingPage /></Layout>} />
           <Route path="/about" element={<Layout><AboutPage /></Layout>} />
+          <Route path="/privacy" element={<Layout><PrivacyPolicy /></Layout>} />
+          <Route path="/contact" element={<Layout><ContactPage /></Layout>} />
           <Route path="/app" element={<Layout showNav={false}><AppPage /></Layout>} />
           <Route path="/admin" element={<Layout showNav={false}><AdminPage /></Layout>} />
         </Routes>

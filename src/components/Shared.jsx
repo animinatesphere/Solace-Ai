@@ -60,8 +60,8 @@ const navCss = `
 .nav-ib{width:34px;height:34px;border-radius:9px;border:1px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:all 0.2s;}
 .nav-ib:hover{border-color:var(--border2);color:var(--text);background:var(--card);}
 .nav-ib svg{width:15px;height:15px;}
-.nav-cta{padding:9px 20px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:9px;color:#fff;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;letter-spacing:0.02em;box-shadow:0 3px 12px var(--glow);}
-.nav-cta:hover{transform:translateY(-1px);box-shadow:0 6px 20px var(--glow);}
+.nav-cta{padding:9px 20px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:9px;color:#fff;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;letter-spacing:0.02em;box-shadow:0 3px 12px var(--glow);display:flex;align-items:center;justify-content:center;}
+.nav-cta:hover{transform:translateY(-1px);box-shadow:0 6px 20px var(--glow);filter:brightness(1.1);}
 .mob-menu{display:none;}
 .mob-nav{display:none;position:fixed;inset:0;background:var(--surface);z-index:99;padding:80px 32px 32px;flex-direction:column;gap:8px;}
 .mob-nav.open{display:flex;}
@@ -162,19 +162,19 @@ export function Footer() {
           </div>
           <div className="ft-col">
             <h4>Company</h4>
-            <Link to="/about">About</Link>
-            <a href="#">Privacy Policy</a>
+            <Link to="/about">About Us</Link>
+            <Link to="/privacy">Privacy Policy</Link>
             <a href="#">Terms of Service</a>
           </div>
           <div className="ft-col">
             <h4>Support</h4>
             <a href="#">Help Center</a>
-            <a href="#">Contact Us</a>
+            <Link to="/contact">Contact Us</Link>
             <a href="#">Crisis Resources</a>
           </div>
         </div>
         <div className="ft-bottom">
-          <span className="ft-copy">© 2025 Solace. All rights reserved.</span>
+          <span className="ft-copy">© {new Date().getFullYear()} Solace. All rights reserved.</span>
           <span className="ft-badge"><Icons.shield style={{width:12,height:12}}/> Your conversations are private & secure</span>
         </div>
       </footer>
