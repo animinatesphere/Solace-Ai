@@ -9,6 +9,31 @@ const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwcmJzb29uYnlrc2JuYXVzZGltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5NzI2NjIsImV4cCI6MjA4ODU0ODY2Mn0.Pngkadr02RFOZboaW3DSKRj7VxoiE4C36Ey4EDGfjl0";
 const LEMONSQUEEZY_URL =
   "https://solaceapp.lemonsqueezy.com/checkout/buy/e56a3b6e-b4e3-404b-bd53-ffdc795127db?desc=0";
+const TRANSFER_DETAILS = {
+  method: "Bank transfer",
+  usd: {
+    accountHolder: "pelumi daniel adeyemi",
+    accountNumber: "211074776626",
+    bankName: "Lead Bank",
+    countryCode: "US",
+    achRouting: "101019644",
+    wireRouting: "101019644",
+    bankAddress: "1801 Main St., Kansas City, MO 64108",
+    accountType: "Checking",
+  },
+  eur: {
+    accountHolder: "pelumi daniel adeyemi",
+    accountNumber: "42168391",
+    sortCode: "041307",
+    swiftCode: "CLJUGB21XXX",
+    bankName: "Clear Junction Limited",
+    iban: "GB45CLJU04130742168391",
+    bankAddress:
+      "4th Floor Imperial House, 15 Kingsway, London, United Kingdom, WC2B 6UN",
+  },
+  reference: "Use your email or username",
+  supportEmail: "support@solace-ai.com",
+};
 // HF_KEY no longer needed — chat uses OpenRouter via Supabase Edge Function
 
 // SQL for Supabase:
@@ -125,10 +150,19 @@ const CSS = `
 .upd{font-size:11px;color:var(--text2);line-height:1.5;margin-bottom:8px;}
 .upbt{width:100%;background:linear-gradient(135deg,var(--blue),var(--teal));border:none;border-radius:8px;padding:9px;color:#fff;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;}
 .upbt:hover{opacity:0.82;transform:translateY(-1px);}
+.upbt-alt{width:100%;margin-top:8px;background:transparent;border:1px solid var(--blue);border-radius:8px;padding:9px;color:var(--blue);font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;}
+.upbt-alt:hover{background:rgba(70,156,255,0.08);}
 .upill{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--card);border-radius:8px;margin-top:8px;border:1px solid var(--border);}
 .uav{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;}
 .unm{font-size:12px;font-weight:500;color:var(--text);}
 .upl{font-size:10px;color:var(--text3);}
+.transfer-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0;}
+.transfer-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;}
+.transfer-card-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;}
+.transfer-row{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-top:1px solid rgba(255,255,255,0.05);font-size:12px;color:var(--text2);}
+.transfer-row:first-of-type{border-top:none;}
+.transfer-row strong{color:var(--text);font-weight:600;}
+.paywall-note{font-size:12px;color:var(--text3);margin-top:10px;}
 
 /* MAIN */
 .app-main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg);position:relative;}
@@ -242,7 +276,7 @@ const CSS = `
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--border2);color:var(--text2);padding:10px 18px;border-radius:10px;font-size:12px;z-index:500;box-shadow:0 6px 24px var(--shadow);white-space:nowrap;animation:fadeUp 0.3s ease;}
 
 .paywall-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);z-index:1000;display:flex;align-items:center;justify-content:center;animation:fadeUp 0.25s ease;}
-.paywall-modal{background:var(--bg);border:1px solid var(--border2);border-radius:20px;padding:36px 32px;max-width:400px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;}
+.paywall-modal{background:var(--bg);border:1px solid var(--border2);border-radius:20px;padding:36px 32px;max-width:720px;width:min(92vw,720px);text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;}
 .paywall-close{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
 .paywall-close:hover{background:var(--card);color:var(--text);}
 .paywall-icon{font-size:40px;margin-bottom:12px;}
@@ -252,6 +286,15 @@ const CSS = `
 .paywall-btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px var(--glow);}
 .paywall-skip{width:100%;padding:10px;background:none;border:none;color:var(--text3);font-size:12px;cursor:pointer;margin-top:10px;transition:color 0.2s;}
 .paywall-skip:hover{color:var(--text2);}
+@media (max-width: 760px) {
+  .paywall-modal{padding:24px 18px;}
+  .paywall-title{font-size:20px;}
+  .paywall-desc{font-size:12px;line-height:1.55;}
+  .transfer-grid{grid-template-columns:1fr;}
+  .transfer-card{padding:14px;}
+  .transfer-row{font-size:11px;gap:8px;}
+  .paywall-note{font-size:11px;margin-top:8px;}
+}
 
 @media(max-width:860px){
   .app-sb{display:none;}
@@ -400,7 +443,12 @@ export default function AppPage() {
   const [journalText, setJournalText] = useState("");
   const [journalEntries, setJournalEntries] = useState([]);
   const [showPaywall, setShowPaywall] = useState(false);
-  const FREE_MSG_LIMIT = 10;
+  const [showTransferInfo, setShowTransferInfo] = useState(false);
+  const [showAccountPrompt, setShowAccountPrompt] = useState(false);
+  const [paymentAccount, setPaymentAccount] = useState("");
+  const [paymentRequestStatus, setPaymentRequestStatus] = useState("");
+  const [transferStatus, setTransferStatus] = useState("");
+  const FREE_MSG_LIMIT = 3;
   const [aff] = useState(
     () => AFFIRMATIONS[Math.floor(Math.random() * AFFIRMATIONS.length)],
   );
@@ -446,6 +494,118 @@ export default function AppPage() {
     setTimeout(() => setToast(""), 3500);
   };
 
+  const openTransferModal = () => {
+    setShowPaywall(true);
+    setShowTransferInfo(true);
+    setShowAccountPrompt(false);
+    setPaymentRequestStatus("");
+  };
+
+  const openAccountPrompt = () => {
+    setShowPaywall(true);
+    setShowAccountPrompt(true);
+    setShowTransferInfo(false);
+    setPaymentRequestStatus("");
+  };
+
+  const handleUpgradeClick = () => {
+    showToast("Upgrade coming soon.");
+  };
+
+  const copyTransferDetails = () => {
+    const text = [
+      `${TRANSFER_DETAILS.method} payment details`,
+      "",
+      "USD account:",
+      `Account holder: ${TRANSFER_DETAILS.usd.accountHolder}`,
+      `Account number: ${TRANSFER_DETAILS.usd.accountNumber}`,
+      `Bank name: ${TRANSFER_DETAILS.usd.bankName}`,
+      `Country code: ${TRANSFER_DETAILS.usd.countryCode}`,
+      `ACH routing: ${TRANSFER_DETAILS.usd.achRouting}`,
+      `Wire routing: ${TRANSFER_DETAILS.usd.wireRouting}`,
+      `Bank address: ${TRANSFER_DETAILS.usd.bankAddress}`,
+      `Account type: ${TRANSFER_DETAILS.usd.accountType}`,
+      "",
+      "EUR account:",
+      `Account holder: ${TRANSFER_DETAILS.eur.accountHolder}`,
+      `Account number: ${TRANSFER_DETAILS.eur.accountNumber}`,
+      `Sort code: ${TRANSFER_DETAILS.eur.sortCode}`,
+      `SWIFT code: ${TRANSFER_DETAILS.eur.swiftCode}`,
+      `IBAN: ${TRANSFER_DETAILS.eur.iban}`,
+      `Bank name: ${TRANSFER_DETAILS.eur.bankName}`,
+      `Bank address: ${TRANSFER_DETAILS.eur.bankAddress}`,
+      "",
+      `Reference: ${TRANSFER_DETAILS.reference}`,
+      `Support: ${TRANSFER_DETAILS.supportEmail}`,
+    ].join("\n");
+
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast("Transfer details copied");
+      });
+    } else {
+      showToast("Copy the transfer details manually.");
+    }
+  };
+
+  const confirmTransfer = async (currency) => {
+    if (!user) {
+      showToast("Please enter your name before confirming transfer.");
+      return;
+    }
+    const request = {
+      user_id: user.id,
+      user_name: user.name,
+      currency,
+      status: "pending",
+      plan_requested: "premium",
+      note: "User confirmed bank transfer sent.",
+      created_at: new Date().toISOString(),
+    };
+    sbPost("transfer_requests", request);
+    const updatedUser = { ...user, plan: "pending" };
+    setUser(updatedUser);
+    localStorage.setItem("solace_u2", JSON.stringify(updatedUser));
+    setTransferStatus(
+      `Transfer confirmation recorded for ${currency}. Awaiting verification.`,
+    );
+    showToast("Transfer request saved. We'll review it soon.");
+    setShowPaywall(false);
+    setShowTransferInfo(false);
+  };
+
+  const submitPaymentAccount = async () => {
+    if (!user) {
+      showToast("Please enter your name before submitting an account number.");
+      return;
+    }
+    if (!paymentAccount.trim()) {
+      showToast("Please enter your payment account number.");
+      return;
+    }
+    const request = {
+      user_id: user.id,
+      user_name: user.name,
+      currency: "N/A",
+      status: "pending",
+      plan_requested: "premium",
+      note: `Payment account number submitted: ${paymentAccount.trim()}`,
+      payment_account_number: paymentAccount.trim(),
+      created_at: new Date().toISOString(),
+    };
+    sbPost("transfer_requests", request);
+    const updatedUser = { ...user, plan: "pending" };
+    setUser(updatedUser);
+    localStorage.setItem("solace_u2", JSON.stringify(updatedUser));
+    setPaymentRequestStatus(
+      "Payment account submitted. We'll verify your subscription soon.",
+    );
+    showToast("Subscription request saved.");
+    setShowPaywall(false);
+    setShowAccountPrompt(false);
+    setPaymentAccount("");
+  };
+
   const handleSetUser = () => {
     if (!nameIn.trim()) return;
     const u = { name: nameIn.trim(), id: `u_${Date.now()}`, plan: "free" };
@@ -460,9 +620,13 @@ export default function AppPage() {
       // Admin bypasses message limit
       const isAdmin = localStorage.getItem("solace_admin") === "true";
       if (!isAdmin) {
-        const msgCount = parseInt(localStorage.getItem("solace_msg_count") || "0", 10);
-        if (msgCount >= FREE_MSG_LIMIT) {
-          setShowPaywall(true);
+        const currentPlan = user?.plan || "free";
+        const msgCount = parseInt(
+          localStorage.getItem("solace_msg_count") || "0",
+          10,
+        );
+        if (currentPlan === "free" && msgCount >= FREE_MSG_LIMIT) {
+          openAccountPrompt();
           return;
         }
         localStorage.setItem("solace_msg_count", String(msgCount + 1));
@@ -845,18 +1009,24 @@ export default function AppPage() {
               <div className="upd">
                 Unlimited chats · Mood history · Memory · Journal sync
               </div>
-              <button
-                className="upbt"
-                onClick={() => window.open(LEMONSQUEEZY_URL, "_blank")}
-              >
-                Upgrade — $9.99/month
+              <button className="upbt" onClick={handleUpgradeClick}>
+                Upgrade — Coming soon
+              </button>
+              <button className="upbt-alt" onClick={openTransferModal}>
+                Pay by transfer
               </button>
             </div>
             <div className="upill">
               <div className="uav">{user.name[0].toUpperCase()}</div>
               <div>
                 <div className="unm">{user.name}</div>
-                <div className="upl">Free plan</div>
+                <div className="upl">
+                  {user.plan === "pending"
+                    ? "Pending subscription"
+                    : user.plan === "premium"
+                      ? "Premium plan"
+                      : "Free plan"}
+                </div>
               </div>
             </div>
           </div>
@@ -1035,32 +1205,182 @@ export default function AppPage() {
 
       {/* Paywall Modal */}
       {showPaywall && (
-        <div className="paywall-overlay" onClick={() => setShowPaywall(false)}>
+        <div
+          className="paywall-overlay"
+          onClick={() => {
+            setShowPaywall(false);
+            setShowTransferInfo(false);
+          }}
+        >
           <div className="paywall-modal" onClick={(e) => e.stopPropagation()}>
             <button
               className="paywall-close"
-              onClick={() => setShowPaywall(false)}
+              onClick={() => {
+                setShowPaywall(false);
+                setShowTransferInfo(false);
+              }}
             >
               ✕
             </button>
             <div className="paywall-icon">💬</div>
-            <h2 className="paywall-title">You've used your free messages</h2>
-            <p className="paywall-desc">
-              You've reached your {FREE_MSG_LIMIT} free messages. Upgrade to
-              Premium for unlimited conversations, mood tracking history,
-              memory, and more.
-            </p>
-            <button
-              className="paywall-btn"
-              onClick={() => window.open(LEMONSQUEEZY_URL, "_blank")}
-            >
-              Upgrade — $9.99/month
-            </button>
+            {showAccountPrompt ? (
+              <>
+                <h2 className="paywall-title">Subscribe with account number</h2>
+                <p className="paywall-desc">
+                  You've reached your free message limit. Enter your payment
+                  account number below so we can record your subscription
+                  request.
+                </p>
+                <label className="fl">Payment account number</label>
+                <input
+                  className="fi"
+                  placeholder="Enter account number"
+                  value={paymentAccount}
+                  onChange={(e) => setPaymentAccount(e.target.value)}
+                />
+                <button className="paywall-btn" onClick={submitPaymentAccount}>
+                  Submit account number
+                </button>
+                <button
+                  className="paywall-btn"
+                  style={{ marginTop: 12, background: "#3a6cff" }}
+                  onClick={openTransferModal}
+                >
+                  Or pay by bank transfer
+                </button>
+                {paymentRequestStatus && (
+                  <div className="paywall-note" style={{ marginTop: 14 }}>
+                    {paymentRequestStatus}
+                  </div>
+                )}
+              </>
+            ) : showTransferInfo ? (
+              <>
+                <h2 className="paywall-title">Pay by bank transfer</h2>
+                <p className="paywall-desc">
+                  Use one of the accounts below to send payment. Copy the
+                  details and complete the transfer from your bank.
+                </p>
+                <div className="transfer-grid">
+                  <div className="transfer-card">
+                    <div className="transfer-card-title">USD account</div>
+                    <div className="transfer-row">
+                      <span>Account holder</span>
+                      <strong>{TRANSFER_DETAILS.usd.accountHolder}</strong>
+                    </div>
+                    <div className="transfer-row">
+                      <span>Account number</span>
+                      <strong>{TRANSFER_DETAILS.usd.accountNumber}</strong>
+                    </div>
+                    <div className="transfer-row">
+                      <span>Bank name</span>
+                      <strong>{TRANSFER_DETAILS.usd.bankName}</strong>
+                    </div>
+                    <div className="transfer-row">
+                      <span>Country code</span>
+                      <strong>{TRANSFER_DETAILS.usd.countryCode}</strong>
+                    </div>
+                    <div className="transfer-row">
+                      <span>ACH routing</span>
+                      <strong>{TRANSFER_DETAILS.usd.achRouting}</strong>
+                    </div>
+                    <div className="transfer-row">
+                      <span>Wire routing</span>
+                      <strong>{TRANSFER_DETAILS.usd.wireRouting}</strong>
+                    </div>
+                    <div className="transfer-row">
+                      <span>Bank address</span>
+                      <strong>{TRANSFER_DETAILS.usd.bankAddress}</strong>
+                    </div>
+                    <div className="transfer-row">
+                      <span>Account type</span>
+                      <strong>{TRANSFER_DETAILS.usd.accountType}</strong>
+                    </div>
+                  </div>
+                  <div className="transfer-card">
+                    <div className="transfer-card-title">EUR account</div>
+                    <div className="transfer-row">
+                      <span>Account holder</span>
+                      <strong>{TRANSFER_DETAILS.eur.accountHolder}</strong>
+                    </div>
+                    <div className="transfer-row">
+                      <span>Account number</span>
+                      <strong>{TRANSFER_DETAILS.eur.accountNumber}</strong>
+                    </div>
+                    <div className="transfer-row">
+                      <span>Sort code</span>
+                      <strong>{TRANSFER_DETAILS.eur.sortCode}</strong>
+                    </div>
+                    <div className="transfer-row">
+                      <span>SWIFT code</span>
+                      <strong>{TRANSFER_DETAILS.eur.swiftCode}</strong>
+                    </div>
+                    <div className="transfer-row">
+                      <span>IBAN</span>
+                      <strong>{TRANSFER_DETAILS.eur.iban}</strong>
+                    </div>
+                    <div className="transfer-row">
+                      <span>Bank name</span>
+                      <strong>{TRANSFER_DETAILS.eur.bankName}</strong>
+                    </div>
+                    <div className="transfer-row">
+                      <span>Bank address</span>
+                      <strong>{TRANSFER_DETAILS.eur.bankAddress}</strong>
+                    </div>
+                  </div>
+                </div>
+                <button className="paywall-btn" onClick={copyTransferDetails}>
+                  Copy transfer details
+                </button>
+                <button
+                  className="paywall-btn"
+                  style={{ marginTop: 12, background: "#3a6cff" }}
+                  onClick={() => confirmTransfer("USD")}
+                >
+                  Confirm USD transfer sent
+                </button>
+                <button
+                  className="paywall-btn"
+                  style={{ marginTop: 12, background: "#4cbb76" }}
+                  onClick={() => confirmTransfer("EUR")}
+                >
+                  Confirm EUR transfer sent
+                </button>
+                {transferStatus && (
+                  <div className="paywall-note" style={{ marginTop: 14 }}>
+                    {transferStatus}
+                  </div>
+                )}
+                <div className="paywall-note">
+                  Reference: {TRANSFER_DETAILS.reference}
+                </div>
+                <div className="paywall-note">
+                  Support: {TRANSFER_DETAILS.supportEmail}
+                </div>
+              </>
+            ) : (
+              <>
+                <h2 className="paywall-title">
+                  You've used your free messages
+                </h2>
+                <p className="paywall-desc">
+                  You've reached your {FREE_MSG_LIMIT} free messages. Upgrade to
+                  Premium for unlimited conversations, mood tracking history,
+                  memory, and more.
+                </p>
+                <button className="paywall-btn" onClick={handleUpgradeClick}>
+                  Upgrade — Coming soon
+                </button>
+              </>
+            )}
             <button
               className="paywall-skip"
-              onClick={() => setShowPaywall(false)}
+              onClick={() => {
+                setShowPaywall(false);
+                setShowTransferInfo(false);
+              }}
             >
-              Maybe later
+              Close
             </button>
           </div>
         </div>

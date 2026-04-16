@@ -66,6 +66,7 @@ const css = `
 .adm-badge.assistant{background:rgba(46,204,113,0.15);color:#2ecc71;}
 .adm-badge.free{background:rgba(241,196,15,0.15);color:#f1c40f;}
 .adm-badge.premium{background:rgba(155,89,182,0.15);color:#9b59b6;}
+.adm-badge.pending{background:rgba(241,92,128,0.12);color:#e74c3c;}
 
 /* Chat expand */
 .adm-chat-expand{max-width:none;white-space:normal;cursor:pointer;}
@@ -109,7 +110,7 @@ async function sbGet(table, filter = "", limit = 500) {
           apikey: SUPABASE_ANON_KEY,
           Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
         },
-      }
+      },
     );
     return await r.json();
   } catch {
@@ -129,6 +130,7 @@ export default function AdminPage() {
   const [conversations, setConversations] = useState([]);
   const [moods, setMoods] = useState([]);
   const [journals, setJournals] = useState([]);
+  const [transfers, setTransfers] = useState([]);
   const [loadingData, setLoadingData] = useState(false);
   const [expandedChat, setExpandedChat] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -161,14 +163,16 @@ export default function AdminPage() {
 
   const loadData = useCallback(async () => {
     setLoadingData(true);
-    const [convos, moodLogs, journalLogs] = await Promise.all([
+    const [convos, moodLogs, journalLogs, transferLogs] = await Promise.all([
       sbGet("conversations", "", 1000),
       sbGet("mood_logs", "", 500),
       sbGet("journal_entries", "", 500),
+      sbGet("transfer_requests", "", 500),
     ]);
     setConversations(Array.isArray(convos) ? convos : []);
     setMoods(Array.isArray(moodLogs) ? moodLogs : []);
     setJournals(Array.isArray(journalLogs) ? journalLogs : []);
+    setTransfers(Array.isArray(transferLogs) ? transferLogs : []);
     setLoadingData(false);
   }, []);
 
@@ -182,7 +186,7 @@ export default function AdminPage() {
   const aiMessages = conversations.filter((c) => c.role === "assistant");
   const todayStr = new Date().toISOString().slice(0, 10);
   const todayMessages = conversations.filter(
-    (c) => c.created_at?.slice(0, 10) === todayStr
+    (c) => c.created_at?.slice(0, 10) === todayStr,
   );
   const todayUsers = [...new Set(todayMessages.map((c) => c.user_id))];
 
@@ -206,7 +210,7 @@ export default function AdminPage() {
     d.setDate(d.getDate() - i);
     const ds = d.toISOString().slice(0, 10);
     const count = conversations.filter(
-      (c) => c.created_at?.slice(0, 10) === ds
+      (c) => c.created_at?.slice(0, 10) === ds,
     ).length;
     last7.push({ date: ds.slice(5), count });
   }
@@ -276,10 +280,7 @@ export default function AdminPage() {
                 {loadingData ? "Loading..." : "Refresh"}
               </span>
             </button>
-            <button
-              className="adm-hbtn gold"
-              onClick={() => navigate("/app")}
-            >
+            <button className="adm-hbtn gold" onClick={() => navigate("/app")}>
               Test AI Chat
             </button>
             <button className="adm-hbtn" onClick={handleLogout}>
@@ -293,9 +294,7 @@ export default function AdminPage() {
           <div className="adm-stat">
             <div className="adm-stat-label">Total Users</div>
             <div className="adm-stat-val">{uniqueUsers.length}</div>
-            <div className="adm-stat-sub">
-              {todayUsers.length} active today
-            </div>
+            <div className="adm-stat-sub">{todayUsers.length} active today</div>
           </div>
           <div className="adm-stat">
             <div className="adm-stat-label">Total Messages</div>
@@ -320,6 +319,13 @@ export default function AdminPage() {
             <div className="adm-stat-val">{journals.length}</div>
             <div className="adm-stat-sub">
               {todayMessages.length} messages today
+            </div>
+          </div>
+          <div className="adm-stat">
+            <div className="adm-stat-label">Transfer Requests</div>
+            <div className="adm-stat-val">{transfers.length}</div>
+            <div className="adm-stat-sub">
+              {transfers.filter((t) => t.status === "pending").length} pending
             </div>
           </div>
         </div>
@@ -389,18 +395,20 @@ export default function AdminPage() {
 
         {/* Tabs */}
         <div className="adm-tabs">
-          {["overview", "users", "chats", "moods", "journals"].map((t) => (
-            <button
-              key={t}
-              className={`adm-tab ${tab === t ? "on" : ""}`}
-              onClick={() => {
-                setTab(t);
-                setSelectedUser(null);
-              }}
-            >
-              {t.charAt(0).toUpperCase() + t.slice(1)}
-            </button>
-          ))}
+          {["overview", "users", "chats", "moods", "journals", "transfers"].map(
+            (t) => (
+              <button
+                key={t}
+                className={`adm-tab ${tab === t ? "on" : ""}`}
+                onClick={() => {
+                  setTab(t);
+                  setSelectedUser(null);
+                }}
+              >
+                {t.charAt(0).toUpperCase() + t.slice(1)}
+              </button>
+            ),
+          )}
         </div>
 
         {/* ── TAB: Overview (recent chats) ── */}
@@ -426,9 +434,7 @@ export default function AdminPage() {
                     </td>
                     <td>{c.persona || "—"}</td>
                     <td
-                      className={
-                        expandedChat === i ? "adm-chat-expand" : ""
-                      }
+                      className={expandedChat === i ? "adm-chat-expand" : ""}
                       onClick={() =>
                         setExpandedChat(expandedChat === i ? null : i)
                       }
@@ -509,8 +515,7 @@ export default function AdminPage() {
                 <tbody>
                   {(userConvos[selectedUser] || [])
                     .sort(
-                      (a, b) =>
-                        new Date(a.created_at) - new Date(b.created_at)
+                      (a, b) => new Date(a.created_at) - new Date(b.created_at),
                     )
                     .map((c, i) => (
                       <tr key={i}>
@@ -522,13 +527,11 @@ export default function AdminPage() {
                         </td>
                         <td
                           className={
-                            expandedChat === `u${i}`
-                              ? "adm-chat-expand"
-                              : ""
+                            expandedChat === `u${i}` ? "adm-chat-expand" : ""
                           }
                           onClick={() =>
                             setExpandedChat(
-                              expandedChat === `u${i}` ? null : `u${i}`
+                              expandedChat === `u${i}` ? null : `u${i}`,
                             )
                           }
                           style={{ cursor: "pointer" }}
@@ -570,13 +573,11 @@ export default function AdminPage() {
                     <td>{c.persona || "—"}</td>
                     <td
                       className={
-                        expandedChat === `a${i}`
-                          ? "adm-chat-expand"
-                          : ""
+                        expandedChat === `a${i}` ? "adm-chat-expand" : ""
                       }
                       onClick={() =>
                         setExpandedChat(
-                          expandedChat === `a${i}` ? null : `a${i}`
+                          expandedChat === `a${i}` ? null : `a${i}`,
                         )
                       }
                       style={{ cursor: "pointer" }}
@@ -647,13 +648,11 @@ export default function AdminPage() {
                     <td>{j.mood || "—"}</td>
                     <td
                       className={
-                        expandedChat === `j${i}`
-                          ? "adm-chat-expand"
-                          : ""
+                        expandedChat === `j${i}` ? "adm-chat-expand" : ""
                       }
                       onClick={() =>
                         setExpandedChat(
-                          expandedChat === `j${i}` ? null : `j${i}`
+                          expandedChat === `j${i}` ? null : `j${i}`,
                         )
                       }
                       style={{ cursor: "pointer" }}
@@ -670,6 +669,62 @@ export default function AdminPage() {
             {journals.length === 0 && (
               <div className="adm-empty">
                 <p>No journal entries yet</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── TAB: Transfers ── */}
+        {tab === "transfers" && (
+          <div className="adm-table-wrap">
+            <table className="adm-table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>User</th>
+                  <th>Currency</th>
+                  <th>Account</th>
+                  <th>Status</th>
+                  <th>Plan</th>
+                  <th>Note</th>
+                </tr>
+              </thead>
+              <tbody>
+                {transfers.map((t, i) => (
+                  <tr key={i}>
+                    <td>{fmtDate(t.created_at)}</td>
+                    <td>{t.user_name || t.user_id || "—"}</td>
+                    <td>{t.currency || "—"}</td>
+                    <td>{t.payment_account_number || "—"}</td>
+                    <td>
+                      <span className={`adm-badge ${t.status || "pending"}`}>
+                        {t.status || "pending"}
+                      </span>
+                    </td>
+                    <td>{t.plan_requested || "premium"}</td>
+                    <td
+                      className={
+                        expandedChat === `t${i}` ? "adm-chat-expand" : ""
+                      }
+                      onClick={() =>
+                        setExpandedChat(
+                          expandedChat === `t${i}` ? null : `t${i}`,
+                        )
+                      }
+                      style={{ cursor: "pointer" }}
+                    >
+                      {expandedChat === `t${i}`
+                        ? t.note
+                        : t.note?.slice(0, 80) +
+                          (t.note?.length > 80 ? "..." : "")}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {transfers.length === 0 && (
+              <div className="adm-empty">
+                <p>No transfer requests yet</p>
               </div>
             )}
           </div>
